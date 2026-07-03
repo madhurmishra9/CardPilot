@@ -1,0 +1,36 @@
+# Seed values — verify against issuer MITC before production use.
+card_id: flipkart_axis
+display_name: "Flipkart Axis Bank Credit Card"
+issuer: "Axis Bank"
+network_variants: [mastercard]
+lifetime_free: false
+joining_fee: 500
+annual_fee: 500
+annual_fee_gst_extra: true
+annual_fee_waiver_spend: 350000
+last_verified: "2026-07-03"
+source_url: "https://www.axisbank.com/retail/cards/credit-card/flipkart-axisbank-credit-card"
+
+reward_program: "Statement cashback"
+point_value_inr: 1.0
+redemption_fee_inr: 0
+redemption_fee_gst_rate: 0.18
+points_expiry_months: 0
+
+earn_rules:
+  rates:
+    - category: online_shopping           # 5% Flipkart, 4% partners
+      rate_points_per_100: 5
+      merchants: [flipkart, myntra, cleartrip]
+    - category: retail_default
+      rate_points_per_100: 1
+  excluded_categories: [fuel, utilities, insurance, wallet_load, emi_conversion, cash_advance, rent, government]
+
+milestones: {}
+
+perks:
+  fuel_surcharge_waiver:
+    rate: 0.01
+    min_txn: 400
+    max_txn: 4000
+    merchants: []

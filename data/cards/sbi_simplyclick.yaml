@@ -1,0 +1,41 @@
+# Seed values — verify against issuer MITC before production use.
+card_id: sbi_simplyclick
+display_name: "SBI SimplyCLICK Credit Card"
+issuer: "SBI Card"
+network_variants: [visa, mastercard]
+lifetime_free: false
+joining_fee: 499
+annual_fee: 499
+annual_fee_gst_extra: true
+annual_fee_waiver_spend: 100000
+last_verified: "2026-07-03"
+source_url: "https://www.sbicard.com/en/personal/credit-cards/shopping/simplyclick-sbi-card.page"
+
+reward_program: "SBI Reward Points"
+point_value_inr: 0.25
+redemption_fee_inr: 99
+redemption_fee_gst_rate: 0.18
+points_expiry_months: 24
+
+earn_rules:
+  rates:
+    - category: online_shopping           # 10X on partner merchants
+      rate_points_per_100: 10
+      merchants: [amazon, bookmyshow, cleartrip, netmeds, myntra]
+    - category: retail_default
+      rate_points_per_100: 1
+  excluded_categories: [fuel, utilities, insurance, wallet_load, emi_conversion, cash_advance, rent, government]
+
+milestones:
+  period: anniversary_year
+  tiers:
+    - spend: 100000                       # ₹1L online → ₹2000 e-voucher
+      bonus_points: 8000
+  max_bonus_points: 8000
+
+perks:
+  fuel_surcharge_waiver:
+    rate: 0.01
+    min_txn: 500
+    max_txn: 3000
+    merchants: []

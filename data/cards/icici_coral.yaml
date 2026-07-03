@@ -1,0 +1,59 @@
+# ICICI Bank Coral Credit Card — reference implementation seed.
+# ALL values are config, never hardcoded in business logic.
+# Refresh from the issuer's MITC before trusting any number in production.
+card_id: icici_coral
+display_name: "ICICI Bank Coral Credit Card"
+issuer: "ICICI Bank"
+network_variants: [visa, mastercard, amex, rupay]
+lifetime_free: false
+joining_fee: 500
+annual_fee: 500
+annual_fee_gst_extra: true
+annual_fee_waiver_spend: 150000        # waived if prev-year spend >= this
+last_verified: "2026-07-03"
+source_url: "https://www.icicibank.com/personal-banking/cards/credit-card/coral-credit-card"
+
+reward_program: "ICICI Rewards"
+point_value_inr: 0.25                   # baseline; varies by redemption option
+redemption_fee_inr: 99                  # PER redemption request
+redemption_fee_gst_rate: 0.18           # GST applied on top of the fee
+points_expiry_months: 36                # verify per statement
+
+earn_rules:
+  rates:
+    - category: retail_default
+      rate_points_per_100: 2
+    - category: utilities
+      rate_points_per_100: 1            # unusual: earns, but at half rate
+    - category: insurance
+      rate_points_per_100: 1
+  excluded_categories: [fuel, cash_advance, wallet_load, emi_conversion, rent, government]
+
+milestones:                             # anniversary-year cumulative spend
+  period: anniversary_year
+  tiers:
+    - spend: 200000
+      bonus_points: 2000
+  step_after:                           # +1000 per extra 1L beyond the last tier
+    every_spend: 100000
+    bonus_points: 1000
+  max_bonus_points: 10000
+
+perks:
+  fuel_surcharge_waiver:
+    rate: 0.01
+    min_txn: 400
+    max_txn: 4000
+    merchants: [HPCL]
+  lounge_domestic_airport:
+    count_per_quarter: 1
+    unlock_spend_prev_quarter: 75000    # spend >= 75k in a calendar quarter
+    value_per_visit_inr: 1000
+  lounge_railway:
+    count_per_year: 4
+    value_per_visit_inr: 150
+  bookmyshow_offer:
+    benefit: "25% off up to ₹100 on 2nd ticket, twice/month"
+    unlock_spend_prev_quarter: 25000    # from Apr 2026
+    monthly_value_cap_inr: 200
+  upi_linkable: true                    # RuPay variant earns on UPI QR spends

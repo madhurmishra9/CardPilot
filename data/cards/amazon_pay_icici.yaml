@@ -1,0 +1,35 @@
+# Seed values — verify against issuer MITC before production use.
+card_id: amazon_pay_icici
+display_name: "Amazon Pay ICICI Credit Card"
+issuer: "ICICI Bank"
+network_variants: [visa]
+lifetime_free: true
+joining_fee: 0
+annual_fee: 0
+annual_fee_waiver_spend: 0
+last_verified: "2026-07-03"
+source_url: "https://www.icicibank.com/personal-banking/cards/credit-card/amazon-pay-credit-card"
+
+reward_program: "Amazon Pay Balance"
+point_value_inr: 1.0                    # cashback credited as Amazon Pay balance
+redemption_fee_inr: 0
+redemption_fee_gst_rate: 0.18
+points_expiry_months: 0                 # 0 = never expires
+
+earn_rules:
+  rates:
+    - category: online_shopping          # Amazon (Prime members: 5%)
+      rate_points_per_100: 5
+      merchants: [amazon]
+    - category: retail_default
+      rate_points_per_100: 1
+  excluded_categories: [fuel, cash_advance, wallet_load, emi_conversion, rent, government]
+
+milestones: {}
+
+perks:
+  fuel_surcharge_waiver:
+    rate: 0.01
+    min_txn: 400
+    max_txn: 4000
+    merchants: []                        # any fuel merchant
