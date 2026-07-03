@@ -159,6 +159,18 @@ class FareAlert(Base):
     last_notified: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class Notification(Base):
+    """Nudges & alerts (Module G): expiry, milestones, fee waiver, fare drops."""
+    __tablename__ = "notifications"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    type: Mapped[str] = mapped_column(String(32))  # expiry|milestone|fee_waiver|perk_gate|fare_drop
+    message: Mapped[str] = mapped_column(Text)
+    payload_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    read: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
 class Recommendation(Base):
     __tablename__ = "recommendations"
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -2,6 +2,9 @@ import { useState } from 'react'
 import Dashboard from './pages/Dashboard.jsx'
 import SwipeAdvisor from './pages/SwipeAdvisor.jsx'
 import Redemption from './pages/Redemption.jsx'
+import CardCompare from './pages/CardCompare.jsx'
+import Travel from './pages/Travel.jsx'
+import Chat from './pages/Chat.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Cards from './pages/Cards.jsx'
 
@@ -9,6 +12,9 @@ const TABS = [
   { key: 'dashboard', label: 'Dashboard', el: Dashboard },
   { key: 'swipe', label: 'Swipe Advisor', el: SwipeAdvisor },
   { key: 'redeem', label: 'Redemption', el: Redemption },
+  { key: 'compare', label: 'Card Compare', el: CardCompare },
+  { key: 'travel', label: 'Travel', el: Travel },
+  { key: 'chat', label: 'Chat', el: Chat },
   { key: 'txns', label: 'Transactions', el: Transactions },
   { key: 'cards', label: 'My Cards', el: Cards },
 ]
