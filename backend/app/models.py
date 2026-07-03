@@ -5,17 +5,16 @@ Sensitive-data rule: never store full PANs; UserCard keeps last-4 digits only.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
-from sqlalchemy import (JSON, Boolean, Date, DateTime, Float, ForeignKey,
-                        Integer, String, Text)
+from sqlalchemy import JSON, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class User(Base):
@@ -157,6 +156,15 @@ class FareAlert(Base):
     target_price: Mapped[float] = mapped_column(Float)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_notified: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class CsvMapping(Base):
+    """Saved column-mapping per bank export format — map once, reuse forever."""
+    __tablename__ = "csv_mappings"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str] = mapped_column(String(80))          # e.g. "ICICI netbanking export"
+    mapping_json: Mapped[dict] = mapped_column(JSON)
 
 
 class Notification(Base):

@@ -50,9 +50,14 @@ def advise(user_card_id: int, db: Session = Depends(get_db)):
     lots = ledger.earn_lots_by_month(db, uc.id)
     today = date.today()
 
-    decision = red.redeem_vs_hold(rules, options, balance, lots, today)
+    # prefer lived experience: observed ₹/pt from logged redemptions becomes
+    # the redeem-vs-hold target once there's enough history
+    realized = ledger.realized_point_value(db, uc.id)
+    decision = red.redeem_vs_hold(rules, options, balance, lots, today,
+                                  target_value_per_point=realized)
     return {
         "points_balance": balance,
+        "realized_value_per_point": realized,
         "fee_per_request_inr": red.redemption_fee_total(rules),
         "break_even_points": red.break_even_points(rules),
         "batching": asdict(red.batching_advice(rules, balance)) if balance > 0 else None,

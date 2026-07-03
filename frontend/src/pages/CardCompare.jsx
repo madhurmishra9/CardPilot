@@ -3,13 +3,17 @@ import { api, inr } from '../api.js'
 
 export default function CardCompare() {
   const [ltfOnly, setLtfOnly] = useState(false)
+  const [share, setShare] = useState(100)
   const [data, setData] = useState(null)
+  const [duo, setDuo] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     setData(null)
-    api.recommend(ltfOnly).then(setData).catch((e) => setError(e.message))
-  }, [ltfOnly])
+    const s = share / 100
+    api.recommend(ltfOnly, s).then(setData).catch((e) => setError(e.message))
+    api.portfolio(2, ltfOnly, s).then(setDuo).catch(() => setDuo(null))
+  }, [ltfOnly, share])
 
   if (error) return <p className="text-red-600">{error}</p>
   if (!data) return <p className="text-slate-500">Simulating catalog on your spend…</p>
@@ -24,7 +28,35 @@ export default function CardCompare() {
           <input type="checkbox" checked={ltfOnly} onChange={(e) => setLtfOnly(e.target.checked)} />
           lifetime-free cards only
         </label>
+        <label className="flex items-center gap-2 text-sm text-slate-600"
+               title="What share of a category's spend actually hits merchant-restricted accelerated rates (e.g. '5% on Amazon')">
+          <span>partner-merchant share</span>
+          <input type="range" min="0" max="100" step="10" value={share}
+                 onChange={(e) => setShare(Number(e.target.value))} />
+          <b>{share}%</b>
+        </label>
       </div>
+
+      {duo?.portfolios?.length > 0 && (
+        <div className="mt-4 rounded-xl border border-violet-300 bg-violet-50 p-4">
+          <h3 className="font-semibold text-violet-900">
+            💡 Best 2-card combo: {inr(duo.portfolios[0].annual_net_value)}/yr
+          </h3>
+          <div className="mt-2 grid gap-2 md:grid-cols-2">
+            {duo.portfolios[0].per_card.map((pc) => (
+              <div key={pc.card_id} className="rounded-lg bg-white p-3 text-sm">
+                <b>{pc.display_name}</b>
+                <span className="ml-2 text-xs text-slate-500">{pc.charges_flag}</span>
+                <p className="mt-1 text-xs text-slate-600">
+                  use for: {pc.assigned_categories.map((c) => c.replaceAll('_', ' ')).join(', ') || '—'}
+                  {' '}({inr(pc.assigned_spend)}/yr → {inr(pc.annual_net_value)})
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-violet-700">{duo.portfolios[0].caveat}</p>
+        </div>
+      )}
       <p className="mt-1 text-xs text-slate-500">
         Projected annual net value on your annualized spend profile:{' '}
         {Object.entries(data.spend_profile).map(([k, v]) => `${k.replaceAll('_', ' ')} ${inr(v)}`).join(' · ')}

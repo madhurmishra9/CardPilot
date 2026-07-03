@@ -9,8 +9,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import Base, SessionLocal, engine
-from .routers import (advisor, cards, chat, notifications, recommend,
-                      redemption, transactions, travel)
+from .routers import (
+    advisor,
+    cards,
+    chat,
+    export,
+    notifications,
+    recommend,
+    redemption,
+    transactions,
+    travel,
+)
 from .seed import seed_all
 
 
@@ -45,6 +54,7 @@ app.include_router(recommend.router)
 app.include_router(travel.router)
 app.include_router(chat.router)
 app.include_router(notifications.router)
+app.include_router(export.router)
 
 
 @app.get("/api/health")

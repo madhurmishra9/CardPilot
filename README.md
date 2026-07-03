@@ -48,7 +48,10 @@ cd backend
 python -m pytest tests/ -v
 ```
 
-The suite includes the seven acceptance tests from the build spec (§9) pinned against the real ICICI Coral seed rules — grocery earn, utilities half-rate, fuel exclusion + surcharge waiver, milestone crossing, split-redemption fee warning, 90-day expiry alert, and cross-card swipe ranking.
+The suite includes the seven acceptance tests from the build spec (§9) pinned against the real ICICI Coral seed rules — grocery earn, utilities half-rate, fuel exclusion + surcharge waiver, milestone crossing, split-redemption fee warning, 90-day expiry alert, and cross-card swipe ranking — plus schema validation of every card file.
+
+Lint/type-check (`pip install -r requirements-dev.txt`): `ruff check app tests && mypy app`.
+Frontend e2e smoke: `cd frontend && npx playwright test`.
 
 ## What's implemented (all phases, 0–5)
 
@@ -58,6 +61,20 @@ The suite includes the seven acceptance tests from the build spec (§9) pinned a
 - **Phase 3 — Card Recommendation**: spend profile derived from your real transactions, every catalog card simulated for projected annual net value (earn + milestones + quantified perks − fees), ranked vs your current card with honest caveats and a lifetime-free filter.
 - **Phase 4 — Travel Savings**: `FareProvider` interface (offline mock by default, Amadeus stub), fare-quote history with book-now/wait trend guidance, fare alerts polled daily by APScheduler, best-card-per-booking, cash-vs-points comparison.
 - **Phase 5 — Chat + Notifications**: grounded advisory chat (deterministic intent routing + engine tool calls; optional Ollama/Anthropic rephrasing that can never invent numbers) and nudges for expiry, milestones, fee waivers, perk gates and fare drops.
+
+### Beyond the spec
+
+- **Portfolio recommendation** — the realistic answer: the best 2–3 card *combination* with per-category routing ("Coral for utilities, SBI Cashback for online…"), not just the best single card.
+- **Schema-validated rules dataset** — every card YAML is validated in CI (pydantic); typos and missing provenance fail the build instead of poisoning the math. Cards not re-verified in 6 months get a ⚠ staleness badge in the UI.
+- **Devaluation tracking** — the YAML files live in git, so rule changes ARE the devaluation record; the UI shows each card's change history ("utilities: 1 → 0.5 pts/₹100 on <date>").
+- **Aggregate monthly caps** — capped categories (e.g. 5% online, max 5000/month) are enforced across the statement month, not per transaction.
+- **Merchant-share assumption** — a slider for how much of a category's spend actually hits merchant-restricted rates ("5% on Amazon"), so recommendations can be optimistic or conservative.
+- **Realized-value learning** — after 2+ logged redemptions, the observed ₹/point (net of fees) replaces the catalog baseline as the redeem-vs-hold target.
+- **Telegram nudges** — expiry/milestone/fare-drop alerts pushed to your phone (opt-in), plus statement-day upload reminders.
+- **Saved CSV mappings** — map a bank's export once, reuse forever.
+- **PWA** — installable on your phone with an offline app shell (the swipe decision happens at the counter, not at your desk); shared text opens in Chat via the share-target.
+- **Data export** — one click to dump everything as JSON or transactions as CSV; your data is never hostage.
+- **Encryption at rest (opt-in)** — set `CARDPILOT_DB_KEY` (+ `pip install sqlcipher3-binary`) for an SQLCipher-encrypted DB; the app refuses to run unencrypted if a key was requested but the driver is missing.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for per-phase details and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the system design.
 
@@ -70,6 +87,8 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for per-phase details and [docs/ARCHITECT
 | `CARDPILOT_FARE_PROVIDER` | `mock` | `amadeus` once keys are configured |
 | `CARDPILOT_LLM` | `none` | `ollama` (local) or `anthropic` (opt-in cloud) for chat rephrasing |
 | `CARDPILOT_LLM_MODEL` | provider default | Model name for the chat layer |
+| `CARDPILOT_DB_KEY` | unset | SQLCipher encryption at rest (needs `sqlcipher3-binary`) |
+| `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` | unset | Push nudges to Telegram |
 
 ## Repository layout
 

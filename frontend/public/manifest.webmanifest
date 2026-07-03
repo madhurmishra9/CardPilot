@@ -1,0 +1,17 @@
+{
+  "name": "CardPilot",
+  "short_name": "CardPilot",
+  "description": "Local-first credit-card rewards & travel-savings optimizer",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": { "text": "text", "title": "title" }
+  }
+}

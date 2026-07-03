@@ -8,8 +8,11 @@ export default function Transactions() {
   const [csv, setCsv] = useState({ file: null, date: 'Txn Date', amount: 'Amount', merchant: 'Details' })
   const [cardId, setCardId] = useState('')
   const [msg, setMsg] = useState(null)
+  const [mappings, setMappings] = useState([])
+  const [mappingName, setMappingName] = useState('')
 
   const refresh = () => api.transactions().then(setTxns)
+  const refreshMappings = () => api.csvMappings().then(setMappings).catch(() => {})
 
   useEffect(() => {
     api.myCards().then((c) => {
@@ -17,7 +20,20 @@ export default function Transactions() {
       if (c.length) setCardId(String(c[0].id))
     })
     refresh()
+    refreshMappings()
   }, [])
+
+  const applyMapping = (id) => {
+    const m = mappings.find((x) => String(x.id) === id)
+    if (m) setCsv({ ...csv, date: m.mapping.date || '', amount: m.mapping.amount || '', merchant: m.mapping.merchant || '' })
+  }
+
+  const saveMapping = async () => {
+    if (!mappingName.trim()) { setMsg('Give the mapping a name first (e.g. "ICICI export")'); return }
+    await api.saveCsvMapping({ name: mappingName, mapping: { date: csv.date, amount: csv.amount, merchant: csv.merchant } })
+    setMsg(`Mapping '${mappingName}' saved — map once, reuse forever`)
+    refreshMappings()
+  }
 
   const submit = async (e) => {
     e.preventDefault()
@@ -119,6 +135,28 @@ export default function Transactions() {
                  className="w-28 rounded-md border border-slate-300 px-3 py-2" />
         </label>
         <button className="rounded-md border border-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-100">Upload</button>
+        <div className="flex w-full flex-wrap items-end gap-3 border-t border-slate-100 pt-3">
+          {mappings.length > 0 && (
+            <label className="text-sm">
+              <span className="mb-1 block text-slate-600">Saved mappings</span>
+              <select defaultValue="" onChange={(e) => applyMapping(e.target.value)}
+                      className="rounded-md border border-slate-300 bg-white px-3 py-2">
+                <option value="" disabled>apply a saved mapping…</option>
+                {mappings.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            </label>
+          )}
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-600">Save current mapping as</span>
+            <input value={mappingName} onChange={(e) => setMappingName(e.target.value)}
+                   placeholder="e.g. ICICI export"
+                   className="w-40 rounded-md border border-slate-300 px-3 py-2" />
+          </label>
+          <button type="button" onClick={saveMapping}
+                  className="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">
+            Save mapping
+          </button>
+        </div>
       </form>
 
       {msg && <p className="mt-3 text-sm text-slate-600">{msg}</p>}
