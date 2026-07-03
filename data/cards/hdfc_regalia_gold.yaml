@@ -1,0 +1,46 @@
+# Seed values — verify against issuer MITC before production use.
+card_id: hdfc_regalia_gold
+display_name: "HDFC Bank Regalia Gold Credit Card"
+issuer: "HDFC Bank"
+network_variants: [visa, mastercard]
+lifetime_free: false
+joining_fee: 2500
+annual_fee: 2500
+annual_fee_gst_extra: true
+annual_fee_waiver_spend: 400000
+last_verified: "2026-07-03"
+source_url: "https://www.hdfcbank.com/personal/pay/cards/credit-cards/regalia-gold-credit-card"
+
+reward_program: "HDFC Reward Points"
+point_value_inr: 0.50                   # up to 0.50 via SmartBuy flights/hotels
+redemption_fee_inr: 99
+redemption_fee_gst_rate: 0.18
+points_expiry_months: 24
+
+earn_rules:
+  rates:
+    - category: retail_default           # 4 RP per ₹150 ≈ 2.67/₹100
+      rate_points_per_100: 2.67
+    - category: online_shopping          # 5X on Nykaa/Myntra/Marks&Spencer/Reliance Digital
+      rate_points_per_100: 13.33
+  excluded_categories: [fuel, wallet_load, emi_conversion, cash_advance, rent, government]
+
+milestones:
+  period: anniversary_year
+  tiers:
+    - spend: 500000                      # ₹5L → flight voucher
+      bonus_points: 10000
+  max_bonus_points: 10000
+
+perks:
+  fuel_surcharge_waiver:
+    rate: 0.01
+    min_txn: 400
+    max_txn: 5000
+    merchants: []
+  lounge_domestic_airport:
+    count_per_year: 12
+    value_per_visit_inr: 1000
+  lounge_international:
+    count_per_year: 6
+    value_per_visit_inr: 2000

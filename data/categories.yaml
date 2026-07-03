@@ -1,0 +1,63 @@
+# Spend category taxonomy. Keys must match `earn_rules` category keys in /data/cards/*.yaml.
+# mcc_ranges: [[low, high], ...]  keywords: case-insensitive substrings matched on raw merchant text.
+categories:
+  - key: retail_default
+    display_name: "General retail"
+    mcc_ranges: []
+    keywords: []
+  - key: groceries
+    display_name: "Groceries"
+    mcc_ranges: [[5411, 5411], [5422, 5422], [5451, 5451], [5462, 5462], [5499, 5499]]
+    keywords: [bigbasket, blinkit, zepto, dmart, "d-mart", grofers, "more retail", "reliance fresh", "star bazaar", supermarket, kirana]
+  - key: dining
+    display_name: "Dining & food delivery"
+    mcc_ranges: [[5811, 5814]]
+    keywords: [swiggy, zomato, restaurant, cafe, dominos, mcdonald, kfc, "pizza hut", barbeque, eatery]
+  - key: fuel
+    display_name: "Fuel"
+    mcc_ranges: [[5541, 5542], [5983, 5983]]
+    keywords: [hpcl, hindustan petroleum, bpcl, bharat petroleum, iocl, indianoil, indian oil, petrol, diesel, fuel, shell, nayara]
+  - key: utilities
+    display_name: "Utilities & bills"
+    mcc_ranges: [[4812, 4816], [4899, 4900]]
+    keywords: [electricity, bses, "tata power", adani electricity, mahadiscom, airtel, jio, "vi recharge", vodafone, broadband, "gas bill", mahanagar gas, igl, water bill, dth, tatasky, postpaid]
+  - key: insurance
+    display_name: "Insurance"
+    mcc_ranges: [[5960, 5960], [6300, 6300], [6381, 6381]]
+    keywords: [lic, policybazaar, insurance, "hdfc ergo", "icici lombard", "star health", "max life", "sbi life", acko, digit]
+  - key: travel
+    display_name: "Travel"
+    mcc_ranges: [[3000, 3350], [3501, 3999], [4111, 4112], [4131, 4131], [4411, 4411], [4511, 4511], [4722, 4722], [7011, 7011]]
+    keywords: [indigo, "air india", vistara, akasa, spicejet, makemytrip, goibibo, cleartrip, yatra, ixigo, easemytrip, irctc, oyo, hotel, airbnb, "taj hotels", marriott]
+  - key: entertainment
+    display_name: "Entertainment"
+    mcc_ranges: [[7829, 7841], [7922, 7922], [7991, 7999]]
+    keywords: [bookmyshow, pvr, inox, netflix, spotify, hotstar, "prime video", sonyliv, "district by zomato"]
+  - key: online_shopping
+    display_name: "Online shopping"
+    mcc_ranges: [[5262, 5262], [5399, 5399], [5691, 5691], [5732, 5732]]
+    keywords: [amazon, flipkart, myntra, ajio, nykaa, meesho, tatacliq, croma, "reliance digital", netmeds, 1mg, pharmeasy]
+  - key: wallet_load
+    display_name: "Wallet load"
+    mcc_ranges: [[6540, 6540]]
+    keywords: [paytm wallet, mobikwik wallet, "wallet load", "add money"]
+  - key: rent
+    display_name: "Rent"
+    mcc_ranges: [[6513, 6513]]
+    keywords: [cred rent, nobroker rent, housing rent, redgiraffe, "rent payment"]
+  - key: government
+    display_name: "Government & tax"
+    mcc_ranges: [[9211, 9223], [9311, 9311], [9399, 9402]]
+    keywords: [income tax, gst payment, cbdt, municipal, passport seva]
+  - key: education
+    display_name: "Education"
+    mcc_ranges: [[8211, 8299]]
+    keywords: [school fee, college fee, tuition, coursera, udemy, byjus]
+  - key: cash_advance
+    display_name: "Cash advance"
+    mcc_ranges: [[6010, 6011]]
+    keywords: [atm withdrawal, cash advance]
+  - key: emi_conversion
+    display_name: "EMI conversion"
+    mcc_ranges: []
+    keywords: [emi conversion, converted to emi]

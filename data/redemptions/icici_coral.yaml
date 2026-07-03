@@ -1,0 +1,29 @@
+# ICICI Rewards redemption catalog seed for Coral. Realized ₹/point varies by
+# item — log actual redemptions in the app to learn true values over time.
+# inr_value is BEFORE the ₹99+GST per-request fee; the engine deducts it.
+card_id: icici_coral
+options:
+  - name: "Amazon voucher (catalog)"
+    type: voucher
+    points_required: 2000
+    inr_value: 500
+    notes: "₹0.25/pt baseline"
+    last_verified: "2026-07-03"
+  - name: "Flight booking via iShop/ICICI travel"
+    type: flight
+    points_required: 8000
+    inr_value: 2240
+    notes: "~₹0.28/pt on select fares — usually the best value path"
+    last_verified: "2026-07-03"
+  - name: "Statement cashback"
+    type: cashback
+    points_required: 2000
+    inr_value: 400
+    notes: "~₹0.20/pt — convenient but below baseline"
+    last_verified: "2026-07-03"
+  - name: "Product catalog (electronics)"
+    type: product
+    points_required: 10000
+    inr_value: 2200
+    notes: "~₹0.22/pt — compare street price before redeeming"
+    last_verified: "2026-07-03"

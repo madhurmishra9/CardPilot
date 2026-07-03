@@ -1,0 +1,44 @@
+# Seed values — verify against issuer MITC before production use.
+card_id: axis_atlas
+display_name: "Axis Bank Atlas Credit Card"
+issuer: "Axis Bank"
+network_variants: [visa]
+lifetime_free: false
+joining_fee: 5000
+annual_fee: 5000
+annual_fee_gst_extra: true
+annual_fee_waiver_spend: 0               # not waivable
+last_verified: "2026-07-03"
+source_url: "https://www.axisbank.com/retail/cards/credit-card/atlas-credit-card"
+
+reward_program: "EDGE Miles"
+point_value_inr: 1.0                     # 1 EDGE Mile ≈ ₹1 via partner transfers
+redemption_fee_inr: 0
+redemption_fee_gst_rate: 0.18
+points_expiry_months: 0
+
+earn_rules:
+  rates:
+    - category: travel                    # 5 miles/₹100 on travel (capped)
+      rate_points_per_100: 5
+      monthly_cap_points: 10000
+    - category: retail_default
+      rate_points_per_100: 2
+  excluded_categories: [fuel, utilities, insurance, wallet_load, emi_conversion, cash_advance, rent, government]
+
+milestones:
+  period: anniversary_year
+  tiers:
+    - spend: 300000
+      bonus_points: 2500
+    - spend: 750000
+      bonus_points: 5000
+  max_bonus_points: 7500
+
+perks:
+  lounge_domestic_airport:
+    count_per_year: 8
+    value_per_visit_inr: 1000
+  lounge_international:
+    count_per_year: 4
+    value_per_visit_inr: 2000
