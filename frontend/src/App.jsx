@@ -20,7 +20,9 @@ const TABS = [
 ]
 
 export default function App() {
-  const [tab, setTab] = useState('dashboard')
+  // PWA share-target: shared text lands in the Chat tab
+  const shared = new URLSearchParams(window.location.search).get('text')
+  const [tab, setTab] = useState(shared ? 'chat' : 'dashboard')
   const Active = TABS.find((t) => t.key === tab).el
 
   return (

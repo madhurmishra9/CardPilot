@@ -6,6 +6,14 @@ export default function Cards() {
   const [mine, setMine] = useState([])
   const [form, setForm] = useState({ card_id: '', last4: '', anniversary_month: 1 })
   const [error, setError] = useState(null)
+  const [historyFor, setHistoryFor] = useState(null)
+  const [history, setHistory] = useState([])
+
+  const showHistory = async (cardId) => {
+    if (historyFor === cardId) { setHistoryFor(null); return }
+    setHistoryFor(cardId)
+    setHistory(await api.cardHistory(cardId).catch(() => []))
+  }
 
   const refresh = () => Promise.all([api.catalog(), api.myCards()])
     .then(([cat, my]) => { setCatalog(cat); setMine(my); if (!form.card_id && cat.length) setForm((f) => ({ ...f, card_id: cat[0].card_id })) })
@@ -69,18 +77,51 @@ export default function Cards() {
       <table className="mt-2 w-full text-sm">
         <thead>
           <tr className="border-b border-slate-300 text-left text-xs text-slate-500">
-            <th className="py-1.5">Card</th><th>Issuer</th><th>Annual fee</th><th>Waiver at</th><th>Verified</th>
+            <th className="py-1.5">Card</th><th>Issuer</th><th>Annual fee</th><th>Waiver at</th><th>Verified</th><th></th>
           </tr>
         </thead>
         <tbody>
           {catalog.map((c) => (
-            <tr key={c.card_id} className="border-b border-slate-100">
-              <td className="py-2">{c.display_name}</td>
-              <td>{c.issuer}</td>
-              <td>{c.lifetime_free ? <span className="text-emerald-600 font-medium">LTF</span> : inr(c.annual_fee)}</td>
-              <td>{c.annual_fee_waiver_spend ? inr(c.annual_fee_waiver_spend) : '—'}</td>
-              <td className="text-xs text-slate-400">{c.last_verified}</td>
-            </tr>
+            <>
+              <tr key={c.card_id} className="border-b border-slate-100">
+                <td className="py-2">{c.display_name}</td>
+                <td>{c.issuer}</td>
+                <td>{c.lifetime_free ? <span className="text-emerald-600 font-medium">LTF</span> : inr(c.annual_fee)}</td>
+                <td>{c.annual_fee_waiver_spend ? inr(c.annual_fee_waiver_spend) : '—'}</td>
+                <td className="text-xs">
+                  {c.stale ? (
+                    <span className="rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-800"
+                          title="Rules verified >6 months ago — re-check the issuer's MITC before trusting the math">
+                      ⚠ {c.last_verified}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">{c.last_verified}</span>
+                  )}
+                </td>
+                <td>
+                  <button onClick={() => showHistory(c.card_id)}
+                          className="text-xs text-sky-600 hover:underline">
+                    {historyFor === c.card_id ? 'hide' : 'changes'}
+                  </button>
+                </td>
+              </tr>
+              {historyFor === c.card_id && (
+                <tr key={`${c.card_id}-history`}>
+                  <td colSpan="6" className="bg-slate-50 px-4 py-3">
+                    {history.length === 0 && <p className="text-xs text-slate-500">No history available.</p>}
+                    {history.map((h) => (
+                      <div key={h.sha} className="mb-2 text-xs">
+                        <span className="font-medium">{h.date}</span>
+                        <span className="ml-2 text-slate-500">{h.message}</span>
+                        <ul className="ml-4 list-disc text-slate-600">
+                          {h.changes.map((ch, i) => <li key={i}>{ch}</li>)}
+                        </ul>
+                      </div>
+                    ))}
+                  </td>
+                </tr>
+              )}
+            </>
           ))}
         </tbody>
       </table>

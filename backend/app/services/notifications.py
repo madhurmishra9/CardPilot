@@ -16,7 +16,6 @@ from sqlalchemy.orm import Session
 from .. import models
 from . import ledger
 from . import redemption as red
-from . import rules_engine as eng
 
 MILESTONE_NUDGE_WITHIN_INR = 25000  # nudge when a milestone is this close
 GATE_NUDGE_WITHIN_INR = 25000

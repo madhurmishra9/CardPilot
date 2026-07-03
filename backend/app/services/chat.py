@@ -119,7 +119,7 @@ def _facts_progress(db: Session, today: date) -> str:
 
 def _facts_recommend(db: Session) -> str:
     from . import recommend  # local import: avoids cycle at module load
-    from .spend_profile import derive_category_spend, current_primary_card
+    from .spend_profile import current_primary_card, derive_category_spend
     catalog = {c.card_id: c.rules_json
                for c in db.scalars(select(models.CardCatalog)).all()}
     spend = derive_category_spend(db, 1)

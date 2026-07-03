@@ -57,6 +57,14 @@ export default function Dashboard() {
           ))}
         </div>
       )}
+      <div className="mb-4 flex justify-end gap-3 text-xs">
+        <a href="/api/export/transactions.csv" className="text-sky-600 hover:underline">
+          ⬇ export transactions (CSV)
+        </a>
+        <a href="/api/export/json" className="text-sky-600 hover:underline">
+          ⬇ export everything (JSON)
+        </a>
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
       {cards.map((c) => (
         <div key={c.user_card_id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">

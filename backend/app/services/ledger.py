@@ -46,6 +46,29 @@ def points_redeemed(db: Session, user_card_id: int) -> float:
     return float(total or 0.0)
 
 
+MIN_EVENTS_FOR_REALIZED_VALUE = 2
+
+
+def realized_point_value(db: Session, user_card_id: int) -> float | None:
+    """Observed ₹/point from the user's actual logged redemptions (net of fees).
+
+    Returns None until there are enough events to trust — then the app can
+    prefer lived experience over the catalog's baseline `point_value_inr`.
+    """
+    rows = db.execute(
+        select(models.RedemptionEvent.points_used,
+               models.RedemptionEvent.inr_value_realized,
+               models.RedemptionEvent.fee_paid)
+        .where(models.RedemptionEvent.user_card_id == user_card_id)).all()
+    if len(rows) < MIN_EVENTS_FOR_REALIZED_VALUE:
+        return None
+    points = sum(float(r[0]) for r in rows)
+    net_inr = sum(float(r[1]) - float(r[2]) for r in rows)
+    if points <= 0:
+        return None
+    return round(net_inr / points, 4)
+
+
 def earn_lots_by_month(db: Session, user_card_id: int) -> list[dict]:
     """Points grouped by earn month — the granularity for expiry alerts."""
     rows = db.execute(

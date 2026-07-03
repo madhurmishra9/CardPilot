@@ -47,13 +47,26 @@ All five phases are implemented. Notes on the later phases:
   lounge/BMS gate progress (live API) + fare drops (scheduler-persisted).
   In-app delivery; email/Telegram are future channels.
 
+## Post-spec enhancements (done)
+
+- Schema-validated card dataset (pydantic, CI-enforced) + UI staleness badges.
+- Portfolio recommendation: best 2–3 card combo with per-category routing.
+- Aggregate monthly-cap enforcement across the statement month.
+- Merchant-share assumption slider for merchant-restricted rates.
+- Realized ₹/point learned from logged redemptions feeds redeem-vs-hold.
+- Devaluation history from git (`/api/cards/catalog/{id}/history`).
+- Telegram nudge delivery + statement-day upload reminders.
+- Saved per-bank CSV mappings; JSON/CSV data export.
+- PWA (installable, offline app shell, share-target → Chat).
+- Opt-in SQLCipher encryption at rest (`CARDPILOT_DB_KEY`).
+- CI: ruff + mypy lint job, Playwright e2e smoke job.
+
 ## Deliberately deferred
 
 - **Account Aggregator (Sahamati)** ingestion — requires FIU/TSP onboarding and
   consent flows; statement upload is the MVP baseline.
 - **Real fare provider integration** — the Amadeus stub documents where the
   OAuth2 + flight-offers call goes; needs paid API keys.
-- **DB encryption at rest** (SQLCipher / field-level) — before any packaged
-  distribution.
-- **Browser extension / share-target** for the Swipe Advisor.
-- **Email / Telegram notification delivery** — nudges are in-app today.
+- **Email notification delivery** — Telegram + in-app today.
+- **Browser extension** for the Swipe Advisor (the PWA share-target covers the
+  mobile path).
