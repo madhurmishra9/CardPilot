@@ -41,6 +41,18 @@ npm install
 npm run dev            # http://localhost:5173, proxies /api to :8000
 ```
 
+### Single-server mode (production / phone)
+
+```bash
+(cd frontend && npm run build)     # once — FastAPI then serves the SPA itself
+cd backend && uvicorn app.main:app --port 8000
+# open http://localhost:8000 — one process is the whole product
+```
+
+**Android:** CardPilot runs fully on-device via Termux (backend + PWA + your
+data, nothing leaves the phone) — see [docs/ANDROID.md](docs/ANDROID.md) for
+setup, keep-alive and start-on-boot instructions.
+
 ### Tests
 
 ```bash
