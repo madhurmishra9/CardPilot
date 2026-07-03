@@ -26,6 +26,13 @@ export const api = {
     request(`/transactions/${id}/category`, { method: 'PATCH', body: JSON.stringify(body) }),
   redemptionAdvice: (userCardId) => request(`/redemption/advise/${userCardId}`),
   logRedemption: (body) => request('/redemption/events', { method: 'POST', body: JSON.stringify(body) }),
+  recommend: (ltfOnly) => request(`/recommend/cards?ltf_only=${ltfOnly}`),
+  travelSearch: (body) => request('/travel/search', { method: 'POST', body: JSON.stringify(body) }),
+  fareAlerts: () => request('/travel/alerts'),
+  addFareAlert: (body) => request('/travel/alerts', { method: 'POST', body: JSON.stringify(body) }),
+  removeFareAlert: (id) => request(`/travel/alerts/${id}`, { method: 'DELETE' }),
+  chat: (message) => request('/chat', { method: 'POST', body: JSON.stringify({ message }) }),
+  notifications: () => request('/notifications'),
 }
 
 export const CATEGORIES = [

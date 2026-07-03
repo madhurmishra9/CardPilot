@@ -21,12 +21,20 @@ function Gate({ gate }) {
   )
 }
 
+const NUDGE_STYLE = {
+  high: 'bg-red-50 text-red-800',
+  medium: 'bg-amber-50 text-amber-800',
+  low: 'bg-slate-100 text-slate-600',
+}
+
 export default function Dashboard() {
   const [cards, setCards] = useState(null)
+  const [nudges, setNudges] = useState([])
   const [error, setError] = useState(null)
 
   useEffect(() => {
     api.dashboard().then(setCards).catch((e) => setError(e.message))
+    api.notifications().then((n) => setNudges(n.live)).catch(() => {})
   }, [])
 
   if (error) return <p className="text-red-600">{error}</p>
@@ -39,7 +47,17 @@ export default function Dashboard() {
     )
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div>
+      {nudges.length > 0 && (
+        <div className="mb-5 space-y-2">
+          {nudges.map((n, i) => (
+            <p key={i} className={`rounded-md px-3 py-2 text-sm ${NUDGE_STYLE[n.severity]}`}>
+              {n.type === 'expiry' ? '⏰' : n.type === 'fare_drop' ? '✈️' : '🎯'} {n.message}
+            </p>
+          ))}
+        </div>
+      )}
+      <div className="grid gap-4 md:grid-cols-2">
       {cards.map((c) => (
         <div key={c.user_card_id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-baseline justify-between">
@@ -73,6 +91,7 @@ export default function Dashboard() {
           </p>
         </div>
       ))}
+      </div>
     </div>
   )
 }

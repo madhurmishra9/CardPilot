@@ -2,15 +2,21 @@
 
 ```
 ┌────────────── React + Vite + Tailwind (SPA) ──────────────┐
-│  Dashboard · Swipe Advisor · Redemption · Transactions ·  │
-│  My Cards          (Card Compare · Travel · Chat later)   │
+│  Dashboard · Swipe Advisor · Redemption · Card Compare ·  │
+│  Travel · Chat · Transactions · My Cards                  │
 └───────────────────────────┬───────────────────────────────┘
                             │ REST (JSON), /api proxied by Vite in dev
 ┌───────────────────────────▼───────────────────────────────┐
 │  FastAPI (backend/app)                                     │
-│  routers/   cards · transactions · advisor · redemption    │
-│  services/  rules_engine · redemption · categorize · ledger│
+│  routers/   cards · transactions · advisor · redemption ·  │
+│             recommend · travel · chat · notifications      │
+│  services/  rules_engine · redemption · categorize ·       │
+│             ledger · recommend · travel · spend_profile ·  │
+│             chat · notifications                            │
+│  providers/ fare_provider (mock|amadeus) · llm_provider     │
+│             (none|ollama|anthropic)                         │
 │  parsers/   generic_csv · icici_pdf (registry)             │
+│  scheduler/ APScheduler: daily fare polls + nudge scans    │
 │  seed.py    idempotent seeding from /data on startup       │
 └───────────────────────────┬───────────────────────────────┘
                             │ SQLAlchemy 2.0
@@ -71,10 +77,32 @@ test suite loads the same YAML files the app ships with.
   explicit opt-in if a cloud LLM is ever used (Phase 5); DPDP Act review before
   any multi-user hosting.
 
-## Extension points (built, awaiting Phases 3–5)
+## Phases 3–5 modules
 
-- `models.py` already carries `SpendProfile`, `FareQuote`, `FareAlert` and
-  `Recommendation` tables for the card-recommendation and travel modules.
+- **Recommendation** (`services/recommend.py`, pure): simulates every catalog
+  card on the user's annualized spend profile — earn (caps respected, honest
+  caveats for merchant-restricted rates), milestones, quantified perks
+  (spend-gated lounges only count when the gate is met), minus effective
+  annual fee and amortized joining fee. `services/spend_profile.py` derives
+  and persists the profile from real transactions.
+- **Travel** (`services/travel.py`, pure + `providers/fare_provider.py`):
+  `FareProvider` ABC with a deterministic offline mock (default) and an
+  Amadeus stub. Quote history feeds `fare_trend_advice` (book_now / book_soon /
+  wait); `best_card_for_booking` reuses the swipe ranker; `points_vs_cash`
+  compares paths including redemption fee and opportunity cost.
+- **Chat** (`services/chat.py` + `providers/llm_provider.py`): deterministic
+  intent router (swipe / redeem / progress / recommend) calls the engines to
+  build FACTS; the LLM provider only rephrases them. Grounding is enforced by
+  construction — the model never sees card rules, only computed output, and
+  every provider falls back to the raw facts on failure.
+- **Notifications** (`services/notifications.py` + `scheduler.py`): live
+  nudges (expiry, milestone, fee waiver, perk gates) computed on request;
+  APScheduler (opt-in via `CARDPILOT_ENABLE_SCHEDULER=1`) persists fare-drop
+  alerts and high-priority nudges daily.
+
+## Remaining extension points
+
 - Parser registry (`parsers/__init__.py`) — add per-issuer statement parsers.
-- Fare providers and LLM providers will live behind `providers/` interfaces so
-  vendors are swappable; APScheduler will drive fare polls and expiry scans.
+- `AmadeusFareProvider` — wire OAuth2 + flight-offers once keys exist.
+- Account Aggregator ingestion behind an `aa_provider` interface (v2).
+- Email/Telegram delivery for notifications.
