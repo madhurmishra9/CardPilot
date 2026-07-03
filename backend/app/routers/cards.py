@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from .. import models
 from ..db import get_db
+from ..schema import is_stale
+from ..services import rules_history
 
 router = APIRouter(prefix="/api/cards", tags=["cards"])
 
@@ -26,8 +28,17 @@ def list_catalog(db: Session = Depends(get_db)):
         "annual_fee_waiver_spend": c.annual_fee_waiver_spend,
         "lifetime_free": bool(c.rules_json.get("lifetime_free")),
         "last_verified": c.last_verified,
+        "stale": is_stale(c.last_verified),   # >6 months since MITC verification
         "source_url": c.source_url,
     } for c in cards]
+
+
+@router.get("/catalog/{card_id}/history")
+def catalog_card_history(card_id: str, db: Session = Depends(get_db)):
+    """Devaluation record: rule changes for this card across git history."""
+    if not db.get(models.CardCatalog, card_id):
+        raise HTTPException(404, f"unknown card_id {card_id}")
+    return rules_history.card_history(card_id)
 
 
 @router.get("/catalog/{card_id}")

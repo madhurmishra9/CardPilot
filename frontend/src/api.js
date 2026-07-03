@@ -26,7 +26,13 @@ export const api = {
     request(`/transactions/${id}/category`, { method: 'PATCH', body: JSON.stringify(body) }),
   redemptionAdvice: (userCardId) => request(`/redemption/advise/${userCardId}`),
   logRedemption: (body) => request('/redemption/events', { method: 'POST', body: JSON.stringify(body) }),
-  recommend: (ltfOnly) => request(`/recommend/cards?ltf_only=${ltfOnly}`),
+  recommend: (ltfOnly, merchantShare = 1) =>
+    request(`/recommend/cards?ltf_only=${ltfOnly}&merchant_share=${merchantShare}`),
+  portfolio: (size, ltfOnly, merchantShare = 1) =>
+    request(`/recommend/portfolio?size=${size}&ltf_only=${ltfOnly}&merchant_share=${merchantShare}`),
+  cardHistory: (cardId) => request(`/cards/catalog/${cardId}/history`),
+  csvMappings: () => request('/transactions/csv-mappings'),
+  saveCsvMapping: (body) => request('/transactions/csv-mappings', { method: 'POST', body: JSON.stringify(body) }),
   travelSearch: (body) => request('/travel/search', { method: 'POST', body: JSON.stringify(body) }),
   fareAlerts: () => request('/travel/alerts'),
   addFareAlert: (body) => request('/travel/alerts', { method: 'POST', body: JSON.stringify(body) }),

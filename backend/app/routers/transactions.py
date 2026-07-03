@@ -32,13 +32,33 @@ def _categories(db: Session) -> list[dict]:
             for c in db.scalars(select(models.Category)).all()]
 
 
+def _month_points(db: Session, user_card_id: int, category_key: str,
+                  txn_date: date) -> float:
+    """Points already earned this calendar month in this category on this card
+    — feeds aggregate monthly-cap enforcement in the engine."""
+    from sqlalchemy import func
+    month_start = txn_date.replace(day=1)
+    next_month = month_start.replace(
+        year=month_start.year + (month_start.month == 12),
+        month=month_start.month % 12 + 1)
+    total = db.scalar(
+        select(func.coalesce(func.sum(models.Transaction.points_earned), 0.0))
+        .where(models.Transaction.user_card_id == user_card_id,
+               models.Transaction.category_key == category_key,
+               models.Transaction.date >= month_start,
+               models.Transaction.date < next_month))
+    return float(total or 0.0)
+
+
 def _insert_txn(db: Session, user_card: models.UserCard, txn_date: date, amount: float,
                 merchant: str, category_key: str | None, source: str,
                 notes: str = "") -> models.Transaction:
     if category_key is None:
         category_key = cat.categorize(merchant, _categories(db), learned=_learned_map(db))
     rules = user_card.catalog.rules_json
-    earn = eng.points_earned(rules, category_key, amount, merchant)
+    prior = _month_points(db, user_card.id, category_key, txn_date)
+    earn = eng.points_earned(rules, category_key, amount, merchant,
+                             prior_month_points=prior)
     txn = models.Transaction(
         user_card_id=user_card.id, date=txn_date, amount=amount, merchant_raw=merchant,
         category_key=category_key, is_reward_eligible=earn.eligible,
@@ -109,6 +129,33 @@ def list_transactions(user_card_id: int | None = None, limit: int = 100,
         "points_earned": t.points_earned, "is_reward_eligible": t.is_reward_eligible,
         "source": t.source,
     } for t in db.scalars(q).all()]
+
+
+class SaveMapping(BaseModel):
+    name: str
+    mapping: dict
+
+
+@router.get("/csv-mappings")
+def list_csv_mappings(db: Session = Depends(get_db)):
+    rows = db.scalars(select(models.CsvMapping)
+                      .where(models.CsvMapping.user_id == DEFAULT_USER_ID)).all()
+    return [{"id": m.id, "name": m.name, "mapping": m.mapping_json} for m in rows]
+
+
+@router.post("/csv-mappings", status_code=201)
+def save_csv_mapping(body: SaveMapping, db: Session = Depends(get_db)):
+    """Persist a bank's column mapping so upload becomes two clicks next time."""
+    existing = db.scalar(select(models.CsvMapping).where(
+        models.CsvMapping.user_id == DEFAULT_USER_ID,
+        models.CsvMapping.name == body.name))
+    if existing:
+        existing.mapping_json = body.mapping
+    else:
+        db.add(models.CsvMapping(user_id=DEFAULT_USER_ID, name=body.name,
+                                 mapping_json=body.mapping))
+    db.commit()
+    return {"name": body.name}
 
 
 class CategoryCorrection(BaseModel):

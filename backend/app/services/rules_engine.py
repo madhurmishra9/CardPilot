@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any
 
 SLAB_INR = 100  # earn rates are expressed as points per ₹100 slab
 
@@ -48,10 +47,14 @@ def _merchant_matches(entry: dict, merchant: str | None) -> bool:
 
 
 def points_earned(rules: dict, category: str, amount: float,
-                  merchant: str | None = None) -> EarnResult:
+                  merchant: str | None = None,
+                  prior_month_points: float | None = None) -> EarnResult:
     """Points for a single transaction, respecting exclusions and per-category rates.
 
     Points accrue per full ₹100 slab (bank-style): floor(amount / 100) * rate.
+    `prior_month_points`: points already earned this calendar month in the same
+    category on this card — when given, monthly caps are enforced across the
+    month's aggregate rather than per transaction.
     """
     if category in _excluded_categories(rules):
         return EarnResult(0, False, 0.0, category,
@@ -76,10 +79,14 @@ def points_earned(rules: dict, category: str, amount: float,
     cap = rate_entry.get("monthly_cap_points")
     reason = (f"{rate:g} pts/₹{SLAB_INR} on '{rate_entry.get('category')}' "
               f"× {slabs} slabs = {points:g} pts")
-    if cap is not None and points > cap:
-        points = float(cap)
-        reason += f" (capped at {cap:g}/month)"
-    return EarnResult(points, True, rate, rate_entry.get("category"), reason)
+    if cap is not None:
+        headroom = float(cap) - (prior_month_points or 0.0)
+        if points > headroom:
+            points = max(0.0, headroom)
+            reason += (f" (capped at {cap:g}/month"
+                       + (f"; {prior_month_points:g} already earned this month"
+                          if prior_month_points else "") + ")")
+    return EarnResult(points, True, rate, str(rate_entry.get("category")), reason)
 
 
 def surcharge_waiver_value(rules: dict, category: str, amount: float,

@@ -24,7 +24,7 @@ earn_rules:
       monthly_cap_points: 5000
     - category: retail_default
       rate_points_per_100: 1
-  excluded_categories: [utilities, insurance, fuel, rent, wallet_load, emi_conversion, cash_advance, government, education, groceries_wholesale]
+  excluded_categories: [utilities, insurance, fuel, rent, wallet_load, emi_conversion, cash_advance, government, education]
 
 milestones: {}
 

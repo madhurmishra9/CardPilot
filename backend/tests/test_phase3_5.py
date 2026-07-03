@@ -1,6 +1,6 @@
 """Tests for Phases 3–5: recommendation engine, travel savings, chat, nudges."""
 
-from datetime import date, timedelta
+from datetime import date
 
 import pytest
 
@@ -8,7 +8,7 @@ from app.catalog import load_card_rules
 from app.providers.fare_provider import MockFareProvider
 from app.providers.llm_provider import NullProvider, get_llm_provider
 from app.services import recommend, travel
-from app.services.chat import route_intent, _extract_amount, _extract_category
+from app.services.chat import _extract_amount, _extract_category, route_intent
 
 CATALOG = load_card_rules()
 CORAL = CATALOG["icici_coral"]

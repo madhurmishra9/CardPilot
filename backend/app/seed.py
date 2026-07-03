@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import yaml
 from sqlalchemy import select
 from sqlalchemy.orm import Session

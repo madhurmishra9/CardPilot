@@ -47,7 +47,7 @@ class MockFareProvider(FareProvider):
         return int(digest[:8], 16)
 
     def search(self, origin, dest, depart_date, return_date=None, cabin="economy"):
-        base = 2500 + self._h(origin.upper(), dest.upper()) % 9000
+        base = float(2500 + self._h(origin.upper(), dest.upper()) % 9000)
         if return_date:
             base = base * 2 * 0.92
         if cabin == "business":

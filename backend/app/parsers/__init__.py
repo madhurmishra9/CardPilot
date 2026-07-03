@@ -7,7 +7,7 @@ Register per-issuer parsers here; the upload endpoint looks them up by key.
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from . import generic_csv, icici_pdf
 

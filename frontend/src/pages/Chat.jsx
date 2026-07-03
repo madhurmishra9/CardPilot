@@ -9,8 +9,9 @@ const SUGGESTIONS = [
 ]
 
 export default function Chat() {
+  const shared = new URLSearchParams(window.location.search).get('text') || ''
   const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState(shared)
   const [busy, setBusy] = useState(false)
 
   const send = async (text) => {

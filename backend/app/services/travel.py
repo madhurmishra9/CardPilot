@@ -8,7 +8,7 @@ served by the notifications service using perk_gate_progress).
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from . import redemption as red
 from . import rules_engine as eng
