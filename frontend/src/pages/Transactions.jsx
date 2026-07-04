@@ -5,11 +5,12 @@ export default function Transactions() {
   const [cards, setCards] = useState([])
   const [txns, setTxns] = useState([])
   const [form, setForm] = useState({ amount: '', merchant: '', category_key: '', date: new Date().toISOString().slice(0, 10) })
-  const [csv, setCsv] = useState({ file: null, date: 'Txn Date', amount: 'Amount', merchant: 'Details' })
+  const [csv, setCsv] = useState({ files: [], date: 'Txn Date', amount: 'Amount', merchant: 'Details' })
   const [cardId, setCardId] = useState('')
   const [msg, setMsg] = useState(null)
   const [mappings, setMappings] = useState([])
   const [mappingName, setMappingName] = useState('')
+  const [fileInputKey, setFileInputKey] = useState(0)
 
   const refresh = () => api.transactions().then(setTxns)
   const refreshMappings = () => api.csvMappings().then(setMappings).catch(() => {})
@@ -54,18 +55,32 @@ export default function Transactions() {
 
   const upload = async (e) => {
     e.preventDefault()
-    if (!csv.file) return
+    if (!csv.files.length) return
     setMsg(null)
-    const fd = new FormData()
-    fd.append('user_card_id', cardId)
-    fd.append('parser', csv.file.name.endsWith('.pdf') ? 'icici_pdf' : 'generic_csv')
-    fd.append('mapping', JSON.stringify({ date: csv.date, amount: csv.amount, merchant: csv.merchant }))
-    fd.append('file', csv.file)
-    try {
-      const res = await api.uploadStatement(fd)
-      setMsg(`Imported ${res.imported} transactions (+${res.points_earned} pts)`)
-      refresh()
-    } catch (err) { setMsg(err.message) }
+    let imported = 0
+    let points = 0
+    const failures = []
+    for (const file of csv.files) {
+      const fd = new FormData()
+      fd.append('user_card_id', cardId)
+      fd.append('parser', file.name.endsWith('.pdf') ? 'icici_pdf' : 'generic_csv')
+      fd.append('mapping', JSON.stringify({ date: csv.date, amount: csv.amount, merchant: csv.merchant }))
+      fd.append('file', file)
+      try {
+        const res = await api.uploadStatement(fd)
+        imported += res.imported
+        points += res.points_earned
+      } catch (err) {
+        failures.push(`${file.name}: ${err.message}`)
+      }
+    }
+    const fileWord = csv.files.length === 1 ? 'file' : 'files'
+    let summary = `Imported ${imported} transactions (+${points} pts) from ${csv.files.length} ${fileWord}`
+    if (failures.length) summary += ` — failed: ${failures.join('; ')}`
+    setMsg(summary)
+    setCsv({ ...csv, files: [] })
+    setFileInputKey((k) => k + 1)
+    refresh()
   }
 
   const recategorize = async (t, key) => {
@@ -115,8 +130,9 @@ export default function Transactions() {
 
       <form onSubmit={upload} className="mt-3 flex flex-wrap items-end gap-3 rounded-xl border border-dashed border-slate-300 bg-white p-4">
         <label className="text-sm">
-          <span className="mb-1 block text-slate-600">Statement (CSV / ICICI PDF)</span>
-          <input type="file" accept=".csv,.pdf" onChange={(e) => setCsv({ ...csv, file: e.target.files[0] })}
+          <span className="mb-1 block text-slate-600">Statement(s) (CSV / ICICI PDF)</span>
+          <input key={fileInputKey} type="file" accept=".csv,.pdf" multiple
+                 onChange={(e) => setCsv({ ...csv, files: Array.from(e.target.files) })}
                  className="text-sm" />
         </label>
         <label className="text-sm">
