@@ -31,7 +31,7 @@ uvicorn app.main:app --reload --port 8000
 
 On first start the DB is created and seeded from `/data` (12-card catalog, categories, ICICI redemption options). API docs at http://localhost:8000/docs.
 
-Optional: `pip install pdfplumber` to enable ICICI PDF statement parsing.
+`requirements.txt` includes `pdfplumber` for ICICI PDF statement parsing.
 
 ### Frontend (React + Vite + Tailwind)
 
