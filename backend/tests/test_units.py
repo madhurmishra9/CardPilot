@@ -44,15 +44,26 @@ class TestCsvParser:
                            "merchant_raw": "SWIGGY BANGALORE"}
 
 
-class TestIciciPdfLineParser:
+class TestIciciPdfRowParser:
     def test_parses_debit_row(self):
-        rows = icici_pdf.parse_line("03/06/2026  SWIGGY BANGALORE IN  1,234.56")
-        assert rows == [{"date": date(2026, 6, 3), "amount": 1234.56,
-                         "merchant_raw": "SWIGGY BANGALORE IN"}]
+        row = ["03-JUN-26", "74332745131513046325559", "SWIGGY BANGALORE IN",
+               "", "0.00", "1,234.56"]
+        assert icici_pdf.parse_row(row) == [{"date": date(2026, 6, 3), "amount": 1234.56,
+                                             "merchant_raw": "SWIGGY BANGALORE IN"}]
 
-    def test_skips_credit_and_noise(self):
-        assert icici_pdf.parse_line("04/06/2026  PAYMENT RECEIVED  5,000.00 CR") == []
-        assert icici_pdf.parse_line("Statement period: June 2026") == []
+    def test_collapses_wrapped_merchant_name(self):
+        row = ["14-MAY-25", "74766515134519933708293",
+               "AMAZON PAY INDIA PRIVATE\nWWW.AMAZON.IN IN", "", "0.00", "16,680.12"]
+        merchant = icici_pdf.parse_row(row)[0]["merchant_raw"]
+        assert merchant == "AMAZON PAY INDIA PRIVATE WWW.AMAZON.IN IN"
+
+    def test_skips_refund_and_header(self):
+        refund_row = ["14-MAY-25", "74766515134519933661997",
+                     "AMAZON PAY INDIA PRIVATE", "", "0.00", "-16,708.00"]
+        assert icici_pdf.parse_row(refund_row) == []
+        header_row = ["Date", "Ref. Number", "Transaction Details", "Currency",
+                      "International amount", "Amount(in ₹)"]
+        assert icici_pdf.parse_row(header_row) == []
 
 
 class TestRedemption:
